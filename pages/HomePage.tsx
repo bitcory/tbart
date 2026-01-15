@@ -9,7 +9,11 @@ import { useArtPieces } from '../hooks/useArtPieces';
 import { MOCK_ART_PIECES } from '../constants';
 
 const HomePage: React.FC = () => {
-  const [viewMode, setViewMode] = useState<ViewMode>(ViewMode.INTRO);
+  // localStorage에서 viewMode 복원 (기본값: INTRO)
+  const [viewMode, setViewMode] = useState<ViewMode>(() => {
+    const saved = localStorage.getItem('viewMode');
+    return saved === 'GALLERY' ? ViewMode.GALLERY : ViewMode.INTRO;
+  });
   const [selectedArt, setSelectedArt] = useState<ArtPiece | null>(null);
 
   // Firebase에서 데이터 가져오기 시도, 실패 시 MOCK 데이터 사용
@@ -21,6 +25,7 @@ const HomePage: React.FC = () => {
 
   const handleEnterGallery = () => {
     setViewMode(ViewMode.GALLERY);
+    localStorage.setItem('viewMode', 'GALLERY');
   };
 
   const handleArtClick = (art: ArtPiece) => {
