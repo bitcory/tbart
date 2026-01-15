@@ -45,6 +45,7 @@ const UserDashboard: React.FC = () => {
   const [urlInput, setUrlInput] = useState('');
   const [imageInputMode, setImageInputMode] = useState<'upload' | 'url'>('upload');
   const [uploadProgress, setUploadProgress] = useState<number[]>([]);
+  const [isDragging, setIsDragging] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -169,6 +170,26 @@ const UserDashboard: React.FC = () => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       setSelectedFiles(prev => [...prev, ...Array.from(e.target.files!)]);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const files = Array.from(e.dataTransfer.files).filter(file => file.type.startsWith('image/'));
+    if (files.length > 0) {
+      setSelectedFiles(prev => [...prev, ...files]);
+      setImageInputMode('upload');
     }
   };
 
@@ -488,7 +509,11 @@ const UserDashboard: React.FC = () => {
 
               <form onSubmit={handleSubmit} className="p-6 space-y-6">
                 {/* Images */}
-                <div>
+                <div
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                >
                   <div className="flex items-center justify-between mb-2">
                     <label className="block text-sm font-medium text-gray-300">이미지</label>
                     <div className="flex bg-gray-800 rounded-lg p-0.5">
@@ -513,51 +538,75 @@ const UserDashboard: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="flex flex-wrap gap-3 mb-3">
-                    {existingImages.map((url, i) => (
-                      <div key={i} className="relative">
-                        <img src={url} alt="" className="w-20 h-20 rounded-lg object-cover" />
-                        <button type="button" onClick={() => removeExistingImage(i)} className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center">
-                          <X className="w-3 h-3 text-white" />
-                        </button>
+                  {/* Drag & Drop Zone */}
+                  <div className={`relative rounded-xl border-2 border-dashed transition-all mb-3 ${
+                    isDragging
+                      ? 'border-indigo-500 bg-indigo-500/10'
+                      : 'border-gray-700'
+                  }`}>
+                    {isDragging && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-indigo-500/20 rounded-xl z-10">
+                        <div className="text-center">
+                          <Upload className="w-8 h-8 text-indigo-400 mx-auto mb-2" />
+                          <p className="text-indigo-400 font-medium">이미지를 여기에 놓으세요</p>
+                        </div>
                       </div>
-                    ))}
-                    {selectedFiles.map((file, i) => (
-                      <div key={`new-${i}`} className="relative">
-                        <img src={URL.createObjectURL(file)} alt="" className="w-20 h-20 rounded-lg object-cover" />
-                        <button type="button" onClick={() => removeFile(i)} className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center">
-                          <X className="w-3 h-3 text-white" />
-                        </button>
-                        {uploadProgress[i] > 0 && uploadProgress[i] < 100 && (
-                          <div className="absolute inset-0 bg-black/60 flex items-center justify-center rounded-lg">
-                            <span className="text-white text-xs">{Math.round(uploadProgress[i])}%</span>
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
+                    )}
 
-                  {imageInputMode === 'upload' ? (
-                    <label className="flex items-center justify-center w-full h-20 border-2 border-dashed border-gray-700 rounded-lg cursor-pointer hover:border-indigo-500 transition-colors">
-                      <div className="flex flex-col items-center">
-                        <Upload className="w-5 h-5 text-gray-500" />
-                        <span className="text-gray-500 text-sm">클릭하여 업로드</span>
+                    {/* Image Preview Grid */}
+                    {(existingImages.length > 0 || selectedFiles.length > 0) && (
+                      <div className="flex flex-wrap gap-3 p-3">
+                        {existingImages.map((url, i) => (
+                          <div key={i} className="relative">
+                            <img src={url} alt="" className="w-20 h-20 rounded-lg object-cover" />
+                            <button type="button" onClick={() => removeExistingImage(i)} className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center">
+                              <X className="w-3 h-3 text-white" />
+                            </button>
+                          </div>
+                        ))}
+                        {selectedFiles.map((file, i) => (
+                          <div key={`new-${i}`} className="relative">
+                            <img src={URL.createObjectURL(file)} alt="" className="w-20 h-20 rounded-lg object-cover" />
+                            <button type="button" onClick={() => removeFile(i)} className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center">
+                              <X className="w-3 h-3 text-white" />
+                            </button>
+                            {uploadProgress[i] > 0 && uploadProgress[i] < 100 && (
+                              <div className="absolute inset-0 bg-black/60 flex items-center justify-center rounded-lg">
+                                <span className="text-white text-xs">{Math.round(uploadProgress[i])}%</span>
+                              </div>
+                            )}
+                          </div>
+                        ))}
                       </div>
-                      <input type="file" accept="image/*" multiple onChange={handleFileChange} className="hidden" />
-                    </label>
-                  ) : (
-                    <div className="flex gap-2">
-                      <input
-                        type="text"
-                        value={urlInput}
-                        onChange={(e) => setUrlInput(e.target.value)}
-                        onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addImageUrl())}
-                        placeholder="이미지 URL..."
-                        className="flex-1 bg-[#1a1a1a] border border-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:border-indigo-500"
-                      />
-                      <button type="button" onClick={addImageUrl} className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">추가</button>
-                    </div>
-                  )}
+                    )}
+
+                    {/* Upload Area */}
+                    {imageInputMode === 'upload' ? (
+                      <label className={`flex items-center justify-center w-full h-24 cursor-pointer hover:bg-white/5 transition-colors ${
+                        existingImages.length > 0 || selectedFiles.length > 0 ? 'border-t border-gray-800' : ''
+                      }`}>
+                        <div className="flex flex-col items-center">
+                          <Upload className="w-6 h-6 text-gray-500 mb-1" />
+                          <span className="text-gray-500 text-sm">클릭 또는 드래그하여 업로드</span>
+                        </div>
+                        <input type="file" accept="image/*" multiple onChange={handleFileChange} className="hidden" />
+                      </label>
+                    ) : (
+                      <div className={`flex gap-2 p-3 ${
+                        existingImages.length > 0 || selectedFiles.length > 0 ? 'border-t border-gray-800' : ''
+                      }`}>
+                        <input
+                          type="text"
+                          value={urlInput}
+                          onChange={(e) => setUrlInput(e.target.value)}
+                          onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addImageUrl())}
+                          placeholder="이미지 URL을 입력하세요..."
+                          className="flex-1 bg-[#1a1a1a] border border-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:border-indigo-500"
+                        />
+                        <button type="button" onClick={addImageUrl} className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">추가</button>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 {/* Title */}
