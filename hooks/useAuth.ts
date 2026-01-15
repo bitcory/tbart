@@ -1,6 +1,5 @@
-import { useEffect } from 'react';
 import { useAuthStore } from '../store/authStore';
-import { onAuthChange, getUserData, signInWithGoogle, logOut } from '../lib/firebase/auth';
+import { signInWithGoogle, logOut } from '../lib/firebase/auth';
 
 export const useAuth = () => {
   const {
@@ -9,28 +8,9 @@ export const useAuth = () => {
     isLoading,
     isAuthenticated,
     isAdmin,
-    setFirebaseUser,
-    setUserData,
     setLoading,
     reset
   } = useAuthStore();
-
-  useEffect(() => {
-    const unsubscribe = onAuthChange(async (user) => {
-      setFirebaseUser(user);
-
-      if (user) {
-        const data = await getUserData(user.uid);
-        setUserData(data);
-      } else {
-        setUserData(null);
-      }
-
-      setLoading(false);
-    });
-
-    return () => unsubscribe();
-  }, []);
 
   const login = async () => {
     try {
@@ -38,6 +18,7 @@ export const useAuth = () => {
       await signInWithGoogle();
     } catch (error) {
       console.error('Login error:', error);
+      setLoading(false);
       throw error;
     }
   };

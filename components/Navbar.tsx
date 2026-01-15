@@ -40,8 +40,13 @@ const Navbar: React.FC = () => {
           isAuthenticated ? (
             <UserMenu />
           ) : (
-            <LoginButton className="hidden sm:flex" />
+            <LoginButton />
           )
+        )}
+
+        {/* Debug: show loading state */}
+        {isLoading && (
+          <span className="text-gray-500 text-xs">로딩...</span>
         )}
 
         <button className="md:hidden p-2 text-gray-300">
