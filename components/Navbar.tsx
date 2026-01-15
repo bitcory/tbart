@@ -15,7 +15,13 @@ const Navbar: React.FC = () => {
     <nav className="sticky top-0 z-40 w-full bg-black/80 backdrop-blur-md border-b border-white/10">
       <div className="px-4 py-3 md:px-8 flex items-center justify-between gap-3">
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-1.5 cursor-pointer shrink-0">
+        <Link
+          to="/"
+          onClick={() => {
+            window.location.hash = '';
+          }}
+          className="flex items-center gap-1.5 cursor-pointer shrink-0"
+        >
           <span className="text-lg md:text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-orange-400 to-yellow-200 leading-none">TB</span>
           <span className="text-sm md:text-lg font-medium text-gray-300 tracking-wider leading-none">ART COLLECTION</span>
         </Link>

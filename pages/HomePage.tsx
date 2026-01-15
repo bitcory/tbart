@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Loader2, SearchX } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import ArtCard from '../components/ArtCard';
@@ -50,6 +50,17 @@ const HomePage: React.FC = () => {
     setSelectedArt(null);
     window.location.hash = '';
   };
+
+  // hash 변경 감지하여 모달 닫기
+  useEffect(() => {
+    const handleHashChange = () => {
+      if (!window.location.hash) {
+        setSelectedArt(null);
+      }
+    };
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white font-sans selection:bg-indigo-500 selection:text-white">
