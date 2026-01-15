@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, Settings, User, LayoutDashboard } from 'lucide-react';
+import { LogOut, User, LayoutDashboard } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 
 const UserMenu: React.FC = () => {
@@ -29,20 +29,6 @@ const UserMenu: React.FC = () => {
     }
   };
 
-  const handleProfileClick = () => {
-    // Navigate to appropriate dashboard based on role
-    if (isAdmin) {
-      navigate('/admin');
-    } else {
-      navigate('/dashboard');
-    }
-  };
-
-  const handleAdminClick = () => {
-    navigate('/admin');
-    setIsOpen(false);
-  };
-
   const handleDashboardClick = () => {
     navigate('/dashboard');
     setIsOpen(false);
@@ -53,13 +39,8 @@ const UserMenu: React.FC = () => {
   return (
     <div className="relative" ref={menuRef}>
       <button
-        onClick={handleProfileClick}
-        onContextMenu={(e) => {
-          e.preventDefault();
-          setIsOpen(!isOpen);
-        }}
+        onClick={() => setIsOpen(!isOpen)}
         className="flex items-center gap-2 p-1 rounded-full hover:bg-white/10 transition-colors"
-        title="클릭: 대시보드로 이동 / 우클릭: 메뉴"
       >
         {user.photoURL ? (
           <img
@@ -94,17 +75,8 @@ const UserMenu: React.FC = () => {
               className="w-full px-4 py-2 text-left text-gray-300 hover:bg-white/5 flex items-center gap-3 transition-colors"
             >
               <LayoutDashboard className="w-4 h-4" />
-              마이 대시보드
+              {isAdmin ? '대시보드 / 아트 관리' : '마이 대시보드'}
             </button>
-            {isAdmin && (
-              <button
-                onClick={handleAdminClick}
-                className="w-full px-4 py-2 text-left text-gray-300 hover:bg-white/5 flex items-center gap-3 transition-colors"
-              >
-                <Settings className="w-4 h-4" />
-                관리자 페이지
-              </button>
-            )}
             <button
               onClick={handleLogout}
               className="w-full px-4 py-2 text-left text-red-400 hover:bg-white/5 flex items-center gap-3 transition-colors"

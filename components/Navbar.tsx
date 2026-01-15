@@ -36,17 +36,10 @@ const Navbar: React.FC = () => {
       {/* Right Actions */}
       <div className="flex items-center gap-4">
         {/* Auth Section */}
-        {!isLoading && (
-          isAuthenticated ? (
-            <UserMenu />
-          ) : (
-            <LoginButton />
-          )
-        )}
-
-        {/* Debug: show loading state */}
-        {isLoading && (
-          <span className="text-gray-500 text-xs">로딩...</span>
+        {isAuthenticated ? (
+          <UserMenu />
+        ) : (
+          <LoginButton />
         )}
 
         <button className="md:hidden p-2 text-gray-300">
