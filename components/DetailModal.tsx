@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ArtPiece } from '../types';
-import { X, Copy, Download, Wand2, Check, Heart } from 'lucide-react';
-import { GoogleGenAI } from "@google/genai";
+import { X, Copy, Download, Check, Heart } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { toggleLikeArt, recordDownload, recordView, getUserActivity } from '../lib/firebase/firestore';
 
@@ -13,10 +12,8 @@ interface DetailModalProps {
 }
 
 const DetailModal: React.FC<DetailModalProps> = ({ art, onClose, relatedArt, onSelectRelated }) => {
-  const { user, isAuthenticated } = useAuth();
+  const { user } = useAuth();
   const [copied, setCopied] = useState(false);
-  const [isEnhancing, setIsEnhancing] = useState(false);
-  const [enhancedPrompt, setEnhancedPrompt] = useState<string | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isLiked, setIsLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(Math.max(0, art.likes || 0));
@@ -103,33 +100,6 @@ const DetailModal: React.FC<DetailModalProps> = ({ art, onClose, relatedArt, onS
     navigator.clipboard.writeText(art.prompt);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-  };
-
-  const handleEnhancePrompt = async () => {
-    if (!process.env.API_KEY) {
-        alert("API Key not found in environment.");
-        return;
-    }
-
-    setIsEnhancing(true);
-    try {
-        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-        const model = 'gemini-3-flash-preview';
-
-        const response = await ai.models.generateContent({
-            model: model,
-            contents: `Please enhance this image generation prompt to be more detailed, artistic, and descriptive. Keep the same core subject but improve lighting, texture, and style references. \n\nOriginal Prompt: ${art.prompt}`,
-            config: {
-                maxOutputTokens: 200,
-            }
-        });
-
-        setEnhancedPrompt(response.text);
-    } catch (error) {
-        console.error("Error enhancing prompt:", error);
-    } finally {
-        setIsEnhancing(false);
-    }
   };
 
   return (
@@ -223,36 +193,17 @@ const DetailModal: React.FC<DetailModalProps> = ({ art, onClose, relatedArt, onS
           <div className="bg-[#151515] border border-gray-800 rounded-xl p-5">
             <div className="flex justify-between items-center mb-3">
                 <span className="text-sm font-semibold text-gray-300">Prompt</span>
-                <div className="flex gap-2">
-                     <button
-                        onClick={handleEnhancePrompt}
-                        disabled={isEnhancing}
-                        className="text-xs flex items-center gap-1 text-purple-400 hover:text-purple-300 transition-colors"
-                    >
-                        <Wand2 className={`w-3 h-3 ${isEnhancing ? 'animate-spin' : ''}`} />
-                        {isEnhancing ? 'Enhancing...' : 'Magic Enhance'}
-                    </button>
-                    <button
-                        onClick={handleCopy}
-                        className="text-xs flex items-center gap-1 text-gray-400 hover:text-white transition-colors bg-gray-800 px-2 py-1 rounded"
-                    >
-                        {copied ? <Check className="w-3 h-3 text-green-500" /> : <Copy className="w-3 h-3" />}
-                        {copied ? 'Copied' : 'Copy'}
-                    </button>
-                </div>
+                <button
+                    onClick={handleCopy}
+                    className="text-xs flex items-center gap-1 text-gray-400 hover:text-white transition-colors bg-gray-800 px-2 py-1 rounded"
+                >
+                    {copied ? <Check className="w-3 h-3 text-green-500" /> : <Copy className="w-3 h-3" />}
+                    {copied ? 'Copied' : 'Copy'}
+                </button>
             </div>
             <p className="text-gray-300 text-sm leading-relaxed font-light font-mono">
                 {art.prompt}
             </p>
-
-            {enhancedPrompt && (
-                <div className="mt-4 pt-4 border-t border-gray-800 animate-in fade-in slide-in-from-top-2">
-                    <span className="text-xs font-semibold text-purple-400 block mb-2">Gemini Enhanced Version:</span>
-                    <p className="text-gray-300 text-sm leading-relaxed font-light font-mono">
-                        {enhancedPrompt}
-                    </p>
-                </div>
-            )}
 
             <div className="mt-4 flex flex-wrap gap-2">
                 {art.tags.map(tag => (
