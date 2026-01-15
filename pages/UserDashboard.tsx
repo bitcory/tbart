@@ -392,7 +392,7 @@ const UserDashboard: React.FC = () => {
               }`}
             >
               {tab.icon}
-              <span className="hidden sm:inline">{tab.label}</span>
+              {tab.label}
               <span className={`px-1.5 py-0.5 rounded text-xs ${
                 activeTab === tab.id ? 'bg-white/20' : 'bg-gray-800'
               }`}>
