@@ -117,8 +117,12 @@ export const incrementLikes = async (artId: string): Promise<void> => {
 
 export const decrementLikes = async (artId: string): Promise<void> => {
   const docRef = doc(db, 'artPieces', artId);
-  await updateDoc(docRef, { likes: increment(-1) });
-  await updateStats({ totalLikes: increment(-1) });
+  // Check current likes to prevent negative
+  const docSnap = await getDoc(docRef);
+  if (docSnap.exists() && (docSnap.data().likes || 0) > 0) {
+    await updateDoc(docRef, { likes: increment(-1) });
+    await updateStats({ totalLikes: increment(-1) });
+  }
 };
 
 // ============ USERS ============
