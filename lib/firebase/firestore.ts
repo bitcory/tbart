@@ -35,22 +35,20 @@ export const getArtPieces = async (
     limit(pageSize)
   );
 
-  if (publishedOnly) {
-    q = query(
-      collection(db, 'artPieces'),
-      where('isPublished', '==', true),
-      orderBy('createdAt', 'desc'),
-      limit(pageSize)
-    );
-  }
-
   if (lastDoc) {
     q = query(q, startAfter(lastDoc));
   }
 
   const snapshot = await getDocs(q);
+
+  // Filter published on client side to avoid composite index requirement
+  let docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as ArtPiece));
+  if (publishedOnly) {
+    docs = docs.filter(doc => doc.isPublished !== false);
+  }
+
   return {
-    docs: snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as ArtPiece)),
+    docs,
     lastDoc: snapshot.docs[snapshot.docs.length - 1] || null
   };
 };

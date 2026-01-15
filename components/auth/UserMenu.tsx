@@ -3,8 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { LogOut, User, LayoutDashboard } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 
+const ADMIN_EMAILS = ['ggamsire@gmail.com'];
+
 const UserMenu: React.FC = () => {
-  const { user, userData, isAdmin, logout } = useAuth();
+  const { user, userData, isAdmin: storeIsAdmin, logout } = useAuth();
+
+  // Fallback: check email directly if Firestore fails
+  const isAdmin = storeIsAdmin || (user?.email && ADMIN_EMAILS.includes(user.email));
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();

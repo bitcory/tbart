@@ -9,8 +9,13 @@ import Navbar from '../components/Navbar';
 
 type TabType = 'likes' | 'downloads' | 'views' | 'artManage';
 
+const ADMIN_EMAILS = ['ggamsire@gmail.com'];
+
 const UserDashboard: React.FC = () => {
-  const { user, userData, isLoading: authLoading, isAdmin } = useAuth();
+  const { user, userData, isLoading: authLoading, isAdmin: storeIsAdmin } = useAuth();
+
+  // Fallback: check email directly if Firestore fails
+  const isAdmin = storeIsAdmin || (user?.email && ADMIN_EMAILS.includes(user.email));
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<TabType>('likes');
   const [isLoading, setIsLoading] = useState(true);
