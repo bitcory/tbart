@@ -206,7 +206,7 @@ const AdminArtPage: React.FC = () => {
           placeholder="아트 검색..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full bg-[#151515] border border-gray-800 text-white rounded-lg pl-9 md:pl-10 pr-4 py-2.5 md:py-3 text-sm md:text-base focus:outline-none focus:border-indigo-500"
+          className="w-full bg-[#151515] border border-gray-800 text-white rounded-lg pl-9 md:pl-10 pr-4 py-2.5 md:py-3 text-base focus:outline-none focus:border-indigo-500"
         />
       </div>
 

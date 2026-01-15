@@ -80,7 +80,7 @@ const Navbar: React.FC = () => {
               onChange={(e) => setQuery(e.target.value)}
               placeholder="제목 또는 프롬프트 검색..."
               autoFocus
-              className="w-full bg-[#1f1f1f] border border-gray-800 text-gray-200 text-sm rounded-lg pl-10 pr-10 py-2.5 focus:outline-none focus:border-indigo-500/50"
+              className="w-full bg-[#1f1f1f] border border-gray-800 text-gray-200 text-base rounded-lg pl-10 pr-10 py-2.5 focus:outline-none focus:border-indigo-500/50"
             />
             {query && (
               <button
