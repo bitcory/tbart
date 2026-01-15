@@ -216,73 +216,135 @@ const AdminArtPage: React.FC = () => {
           <Loader2 className="w-8 h-8 text-indigo-500 animate-spin" />
         </div>
       ) : filteredArts.length > 0 ? (
-        <div className="bg-[#151515] border border-gray-800 rounded-xl overflow-hidden">
-          <table className="w-full">
-            <thead className="bg-[#1a1a1a]">
-              <tr>
-                <th className="text-left text-gray-400 font-medium px-6 py-4">이미지</th>
-                <th className="text-left text-gray-400 font-medium px-6 py-4">제목</th>
-                <th className="text-left text-gray-400 font-medium px-6 py-4">모델</th>
-                <th className="text-left text-gray-400 font-medium px-6 py-4">상태</th>
-                <th className="text-left text-gray-400 font-medium px-6 py-4">통계</th>
-                <th className="text-right text-gray-400 font-medium px-6 py-4">액션</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-800">
-              {filteredArts.map((art) => (
-                <tr key={art.id} className="hover:bg-white/5">
-                  <td className="px-6 py-4">
-                    <img
-                      src={art.imageUrls[0]}
-                      alt={art.title}
-                      className="w-16 h-16 rounded-lg object-cover"
-                    />
-                  </td>
-                  <td className="px-6 py-4">
-                    <p className="text-white font-medium">{art.title}</p>
-                    <p className="text-gray-500 text-sm truncate max-w-xs">{art.prompt}</p>
-                  </td>
-                  <td className="px-6 py-4 text-gray-400">{art.model}</td>
-                  <td className="px-6 py-4">
-                    <span className={`px-2 py-1 rounded text-xs ${
-                      art.isPublished !== false
-                        ? 'bg-green-500/20 text-green-400'
-                        : 'bg-gray-500/20 text-gray-400'
-                    }`}>
-                      {art.isPublished !== false ? '공개' : '비공개'}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-4 text-sm text-gray-400">
-                      <span className="flex items-center gap-1">
-                        <Eye className="w-4 h-4" /> {art.views}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Heart className="w-4 h-4" /> {art.likes}
-                      </span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center justify-end gap-2">
-                      <button
-                        onClick={() => openModal(art)}
-                        className="p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
-                      >
-                        <Pencil className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(art)}
-                        className="p-2 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </td>
+        <>
+          {/* Desktop Table */}
+          <div className="hidden md:block bg-[#151515] border border-gray-800 rounded-xl overflow-hidden">
+            <table className="w-full">
+              <thead className="bg-[#1a1a1a]">
+                <tr>
+                  <th className="text-left text-gray-400 font-medium px-6 py-4">이미지</th>
+                  <th className="text-left text-gray-400 font-medium px-6 py-4">제목</th>
+                  <th className="text-left text-gray-400 font-medium px-6 py-4">모델</th>
+                  <th className="text-left text-gray-400 font-medium px-6 py-4">상태</th>
+                  <th className="text-left text-gray-400 font-medium px-6 py-4">통계</th>
+                  <th className="text-right text-gray-400 font-medium px-6 py-4">액션</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody className="divide-y divide-gray-800">
+                {filteredArts.map((art) => (
+                  <tr
+                    key={art.id}
+                    onClick={() => openModal(art)}
+                    className="hover:bg-white/5 cursor-pointer"
+                  >
+                    <td className="px-6 py-4">
+                      <img
+                        src={art.imageUrls[0]}
+                        alt={art.title}
+                        className="w-16 h-16 rounded-lg object-cover"
+                      />
+                    </td>
+                    <td className="px-6 py-4">
+                      <p className="text-white font-medium">{art.title}</p>
+                      <p className="text-gray-500 text-sm truncate max-w-xs">{art.prompt}</p>
+                    </td>
+                    <td className="px-6 py-4 text-gray-400">{art.model}</td>
+                    <td className="px-6 py-4">
+                      <span className={`px-2 py-1 rounded text-xs ${
+                        art.isPublished !== false
+                          ? 'bg-green-500/20 text-green-400'
+                          : 'bg-gray-500/20 text-gray-400'
+                      }`}>
+                        {art.isPublished !== false ? '공개' : '비공개'}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-4 text-sm text-gray-400">
+                        <span className="flex items-center gap-1">
+                          <Eye className="w-4 h-4" /> {art.views}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Heart className="w-4 h-4" /> {art.likes}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center justify-end gap-2">
+                        <button
+                          onClick={(e) => { e.stopPropagation(); openModal(art); }}
+                          className="p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+                        >
+                          <Pencil className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); handleDelete(art); }}
+                          className="p-2 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Mobile Card List */}
+          <div className="md:hidden space-y-3">
+            {filteredArts.map((art) => (
+              <div
+                key={art.id}
+                onClick={() => openModal(art)}
+                className="bg-[#151515] border border-gray-800 rounded-xl p-4 cursor-pointer active:bg-white/5"
+              >
+                <div className="flex gap-4">
+                  <img
+                    src={art.imageUrls[0]}
+                    alt={art.title}
+                    className="w-20 h-20 rounded-lg object-cover shrink-0"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="text-white font-medium truncate">{art.title}</p>
+                      <span className={`px-2 py-0.5 rounded text-xs shrink-0 ${
+                        art.isPublished !== false
+                          ? 'bg-green-500/20 text-green-400'
+                          : 'bg-gray-500/20 text-gray-400'
+                      }`}>
+                        {art.isPublished !== false ? '공개' : '비공개'}
+                      </span>
+                    </div>
+                    <p className="text-gray-500 text-sm truncate mt-1">{art.prompt}</p>
+                    <div className="flex items-center gap-4 mt-2 text-xs text-gray-400">
+                      <span className="flex items-center gap-1">
+                        <Eye className="w-3 h-3" /> {art.views}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Heart className="w-3 h-3" /> {art.likes}
+                      </span>
+                      {art.model && <span>{art.model}</span>}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex justify-end gap-2 mt-3 pt-3 border-t border-gray-800">
+                  <button
+                    onClick={(e) => { e.stopPropagation(); openModal(art); }}
+                    className="px-3 py-1.5 text-sm text-gray-400 hover:text-white bg-white/5 rounded-lg transition-colors flex items-center gap-1"
+                  >
+                    <Pencil className="w-3 h-3" /> 수정
+                  </button>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); handleDelete(art); }}
+                    className="px-3 py-1.5 text-sm text-red-400 hover:text-red-300 bg-red-500/10 rounded-lg transition-colors flex items-center gap-1"
+                  >
+                    <Trash2 className="w-3 h-3" /> 삭제
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
       ) : (
         <div className="text-center py-20">
           <p className="text-gray-400">아트가 없습니다</p>
