@@ -15,20 +15,42 @@ const App: React.FC = () => {
   const { setFirebaseUser, setUserData, setLoading } = useAuthStore();
 
   useEffect(() => {
-    const unsubscribe = onAuthChange(async (user) => {
-      setFirebaseUser(user);
+    let unsubscribe: (() => void) | undefined;
 
-      if (user) {
-        const data = await getUserData(user.uid);
-        setUserData(data);
-      } else {
-        setUserData(null);
-      }
-
+    // Timeout fallback - if Firebase doesn't respond in 5 seconds, stop loading
+    const timeout = setTimeout(() => {
+      console.warn('Firebase auth timeout - setting loading to false');
       setLoading(false);
-    });
+    }, 5000);
 
-    return () => unsubscribe();
+    try {
+      unsubscribe = onAuthChange(async (user) => {
+        clearTimeout(timeout);
+        setFirebaseUser(user);
+
+        if (user) {
+          try {
+            const data = await getUserData(user.uid);
+            setUserData(data);
+          } catch (error) {
+            console.error('Error getting user data:', error);
+          }
+        } else {
+          setUserData(null);
+        }
+
+        setLoading(false);
+      });
+    } catch (error) {
+      console.error('Firebase auth error:', error);
+      clearTimeout(timeout);
+      setLoading(false);
+    }
+
+    return () => {
+      clearTimeout(timeout);
+      if (unsubscribe) unsubscribe();
+    };
   }, []);
 
   return (
