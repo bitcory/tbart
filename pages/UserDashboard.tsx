@@ -459,26 +459,34 @@ const UserDashboard: React.FC = () => {
                 {allArts.length > 0 ? (
                   <div className="space-y-3">
                     {allArts.map((art) => (
-                      <div key={art.id} className="flex items-center gap-4 p-4 bg-[#151515] border border-gray-800 rounded-xl">
-                        <img src={art.imageUrls[0]} alt={art.title} className="w-16 h-16 rounded-lg object-cover" />
+                      <div
+                        key={art.id}
+                        onClick={() => openModal(art)}
+                        className="flex items-center gap-3 md:gap-4 p-3 md:p-4 bg-[#151515] border border-gray-800 rounded-xl cursor-pointer active:bg-white/5 hover:bg-white/5"
+                      >
+                        <img src={art.imageUrls[0]} alt={art.title} className="w-14 h-14 md:w-16 md:h-16 rounded-lg object-cover shrink-0" />
                         <div className="flex-1 min-w-0">
-                          <p className="text-white font-medium truncate">{art.title}</p>
-                          <p className="text-gray-500 text-sm truncate">{art.prompt}</p>
+                          <p className="text-white font-medium truncate text-sm md:text-base">{art.title}</p>
+                          <p className="text-gray-500 text-xs md:text-sm truncate">{art.prompt}</p>
+                          <div className="flex items-center gap-3 mt-1 text-xs text-gray-400 md:hidden">
+                            <span className="flex items-center gap-1"><Eye className="w-3 h-3" /> {art.views}</span>
+                            <span className="flex items-center gap-1"><Heart className="w-3 h-3" /> {art.likes}</span>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-2 text-sm text-gray-400">
+                        <div className="hidden md:flex items-center gap-2 text-sm text-gray-400">
                           <Eye className="w-4 h-4" /> {art.views}
                           <Heart className="w-4 h-4 ml-2" /> {art.likes}
                         </div>
-                        <div className="flex gap-2">
+                        <div className="flex gap-1 md:gap-2 shrink-0">
                           <button
-                            onClick={() => openModal(art)}
-                            className="p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg"
+                            onClick={(e) => { e.stopPropagation(); openModal(art); }}
+                            className="p-1.5 md:p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg"
                           >
                             <Pencil className="w-4 h-4" />
                           </button>
                           <button
-                            onClick={() => handleDelete(art)}
-                            className="p-2 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg"
+                            onClick={(e) => { e.stopPropagation(); handleDelete(art); }}
+                            className="p-1.5 md:p-2 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
