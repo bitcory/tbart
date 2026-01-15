@@ -39,10 +39,15 @@ export const signInWithGoogle = async (): Promise<FirebaseUser> => {
     });
   } else {
     // If existing user is an admin email, ensure they have admin role
+    const userData = userSnap.data();
     const updateData: Record<string, unknown> = { lastLoginAt: serverTimestamp() };
-    if (isAdminEmail && userSnap.data()?.role !== 'admin') {
+    if (isAdminEmail && userData?.role !== 'admin') {
       updateData.role = 'admin';
     }
+    // Ensure activity arrays exist for existing users
+    if (!userData?.likedArts) updateData.likedArts = [];
+    if (!userData?.downloadedArts) updateData.downloadedArts = [];
+    if (!userData?.viewedArts) updateData.viewedArts = [];
     await setDoc(userRef, updateData, { merge: true });
   }
 

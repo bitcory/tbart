@@ -46,12 +46,20 @@ const DetailModal: React.FC<DetailModalProps> = ({ art, onClose, relatedArt, onS
       alert('좋아요를 누르려면 로그인이 필요합니다.');
       return;
     }
+
+    // Optimistic UI update
+    const wasLiked = isLiked;
+    setIsLiked(!wasLiked);
+    setLikeCount(prev => wasLiked ? prev - 1 : prev + 1);
+
     try {
-      await toggleLikeArt(user.uid, art.id, isLiked);
-      setIsLiked(!isLiked);
-      setLikeCount(prev => isLiked ? prev - 1 : prev + 1);
+      await toggleLikeArt(user.uid, art.id, wasLiked);
     } catch (error) {
+      // Rollback on error
       console.error('Error toggling like:', error);
+      setIsLiked(wasLiked);
+      setLikeCount(prev => wasLiked ? prev + 1 : prev - 1);
+      alert('좋아요 처리 중 오류가 발생했습니다.');
     }
   };
 
