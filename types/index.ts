@@ -32,6 +32,20 @@ export interface User {
   createdAt: Timestamp;
   lastLoginAt: Timestamp;
   isActive: boolean;
+  // Activity tracking
+  likedArts?: string[];  // art IDs
+  downloadedArts?: DownloadRecord[];
+  viewedArts?: ViewRecord[];
+}
+
+export interface DownloadRecord {
+  artId: string;
+  downloadedAt: Timestamp;
+}
+
+export interface ViewRecord {
+  artId: string;
+  viewedAt: Timestamp;
 }
 
 // Stats Types

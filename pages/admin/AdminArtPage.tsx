@@ -1,5 +1,5 @@
-import React, { useState, useCallback } from 'react';
-import { Plus, Pencil, Trash2, Eye, Heart, Search, Upload, X, Loader2 } from 'lucide-react';
+import React, { useState } from 'react';
+import { Plus, Pencil, Trash2, Eye, Heart, Search, Upload, X, Loader2, Link } from 'lucide-react';
 import { useAllArtPieces } from '../../hooks/useArtPieces';
 import { useAuth } from '../../hooks/useAuth';
 import { addArtPiece, updateArtPiece, deleteArtPiece } from '../../lib/firebase/firestore';
@@ -29,6 +29,8 @@ const AdminArtPage: React.FC = () => {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [existingImages, setExistingImages] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState('');
+  const [urlInput, setUrlInput] = useState('');
+  const [imageInputMode, setImageInputMode] = useState<'upload' | 'url'>('upload');
 
   const filteredArts = artPieces.filter(art =>
     art.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -49,7 +51,17 @@ const AdminArtPage: React.FC = () => {
     setSelectedFiles([]);
     setExistingImages([]);
     setTagInput('');
+    setUrlInput('');
+    setImageInputMode('upload');
     setEditingArt(null);
+  };
+
+  const addImageUrl = () => {
+    const url = urlInput.trim();
+    if (url && !existingImages.includes(url)) {
+      setExistingImages(prev => [...prev, url]);
+      setUrlInput('');
+    }
   };
 
   const openModal = (art?: ArtPiece) => {
@@ -293,7 +305,37 @@ const AdminArtPage: React.FC = () => {
             <form onSubmit={handleSubmit} className="p-6 space-y-6">
               {/* Images */}
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">이미지</label>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-sm font-medium text-gray-300">이미지</label>
+                  <div className="flex bg-gray-800 rounded-lg p-0.5">
+                    <button
+                      type="button"
+                      onClick={() => setImageInputMode('upload')}
+                      className={`px-3 py-1 text-xs rounded-md transition-colors ${
+                        imageInputMode === 'upload'
+                          ? 'bg-indigo-600 text-white'
+                          : 'text-gray-400 hover:text-white'
+                      }`}
+                    >
+                      <Upload className="w-3 h-3 inline mr-1" />
+                      업로드
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setImageInputMode('url')}
+                      className={`px-3 py-1 text-xs rounded-md transition-colors ${
+                        imageInputMode === 'url'
+                          ? 'bg-indigo-600 text-white'
+                          : 'text-gray-400 hover:text-white'
+                      }`}
+                    >
+                      <Link className="w-3 h-3 inline mr-1" />
+                      URL
+                    </button>
+                  </div>
+                </div>
+
+                {/* Existing images preview */}
                 <div className="flex flex-wrap gap-3 mb-3">
                   {existingImages.map((url, i) => (
                     <div key={i} className="relative">
@@ -328,8 +370,15 @@ const AdminArtPage: React.FC = () => {
                       )}
                     </div>
                   ))}
-                  <label className="w-20 h-20 border-2 border-dashed border-gray-700 rounded-lg flex items-center justify-center cursor-pointer hover:border-indigo-500 transition-colors">
-                    <Upload className="w-6 h-6 text-gray-500" />
+                </div>
+
+                {/* Upload or URL input */}
+                {imageInputMode === 'upload' ? (
+                  <label className="flex items-center justify-center w-full h-24 border-2 border-dashed border-gray-700 rounded-lg cursor-pointer hover:border-indigo-500 transition-colors">
+                    <div className="flex flex-col items-center">
+                      <Upload className="w-6 h-6 text-gray-500 mb-1" />
+                      <span className="text-gray-500 text-sm">클릭하여 이미지 업로드</span>
+                    </div>
                     <input
                       type="file"
                       accept="image/*"
@@ -338,7 +387,25 @@ const AdminArtPage: React.FC = () => {
                       className="hidden"
                     />
                   </label>
-                </div>
+                ) : (
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={urlInput}
+                      onChange={(e) => setUrlInput(e.target.value)}
+                      onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addImageUrl())}
+                      placeholder="이미지 URL 입력..."
+                      className="flex-1 bg-[#1a1a1a] border border-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:border-indigo-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={addImageUrl}
+                      className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
+                    >
+                      추가
+                    </button>
+                  </div>
+                )}
               </div>
 
               {/* Title */}

@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ArtPiece } from '../types';
-import { X, Copy, Download, Share2, Wand2, Check, ChevronLeft, ChevronRight } from 'lucide-react';
+import { X, Copy, Download, Wand2, Check, ChevronLeft, ChevronRight, Heart } from 'lucide-react';
 import { GoogleGenAI } from "@google/genai";
+import { useAuth } from '../hooks/useAuth';
+import { toggleLikeArt, recordDownload, recordView, getUserActivity } from '../lib/firebase/firestore';
 
 interface DetailModalProps {
   art: ArtPiece;
@@ -11,12 +13,72 @@ interface DetailModalProps {
 }
 
 const DetailModal: React.FC<DetailModalProps> = ({ art, onClose, relatedArt, onSelectRelated }) => {
+  const { user, isAuthenticated } = useAuth();
   const [copied, setCopied] = useState(false);
   const [isEnhancing, setIsEnhancing] = useState(false);
   const [enhancedPrompt, setEnhancedPrompt] = useState<string | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isLiked, setIsLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState(art.likes);
 
   const hasMultipleImages = art.imageUrls.length > 1;
+
+  // Track view on mount
+  useEffect(() => {
+    if (user) {
+      recordView(user.uid, art.id).catch(console.error);
+    }
+  }, [user, art.id]);
+
+  // Check if user has liked this art
+  useEffect(() => {
+    const checkLiked = async () => {
+      if (user) {
+        const activity = await getUserActivity(user.uid);
+        setIsLiked(activity.likedArts.includes(art.id));
+      }
+    };
+    checkLiked();
+  }, [user, art.id]);
+
+  const handleLike = async () => {
+    if (!user) {
+      alert('좋아요를 누르려면 로그인이 필요합니다.');
+      return;
+    }
+    try {
+      await toggleLikeArt(user.uid, art.id, isLiked);
+      setIsLiked(!isLiked);
+      setLikeCount(prev => isLiked ? prev - 1 : prev + 1);
+    } catch (error) {
+      console.error('Error toggling like:', error);
+    }
+  };
+
+  const handleDownload = async () => {
+    try {
+      // Record download if user is logged in
+      if (user) {
+        await recordDownload(user.uid, art.id);
+      }
+
+      // Download image
+      const response = await fetch(art.imageUrls[currentImageIndex]);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${art.title}-${currentImageIndex + 1}.jpg`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error downloading image:', error);
+      // Fallback: open in new tab
+      window.open(art.imageUrls[currentImageIndex], '_blank');
+    }
+  };
 
   const handleCopy = () => {
     navigator.clipboard.writeText(art.prompt);
@@ -142,12 +204,23 @@ const DetailModal: React.FC<DetailModalProps> = ({ art, onClose, relatedArt, onS
 
           {/* Action Buttons */}
           <div className="flex gap-3">
-            <button className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2">
-                View Original
+            <button
+              onClick={handleLike}
+              className={`flex-1 py-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 ${
+                isLiked
+                  ? 'bg-pink-600 hover:bg-pink-700 text-white'
+                  : 'bg-gray-700 hover:bg-gray-600 text-white'
+              }`}
+            >
+              <Heart className={`w-4 h-4 ${isLiked ? 'fill-current' : ''}`} />
+              {likeCount}
             </button>
-            <button className="flex-1 bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2">
-                <Download className="w-4 h-4" />
-                Download
+            <button
+              onClick={handleDownload}
+              className="flex-1 bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+            >
+              <Download className="w-4 h-4" />
+              다운로드
             </button>
           </div>
 

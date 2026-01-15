@@ -11,11 +11,17 @@ import { User, UserRole } from '../../types';
 
 const googleProvider = new GoogleAuthProvider();
 
+// Admin emails
+const ADMIN_EMAILS = ['ggamsire@gmail.com'];
+
 export const signInWithGoogle = async (): Promise<FirebaseUser> => {
   const result = await signInWithPopup(auth, googleProvider);
 
   const userRef = doc(db, 'users', result.user.uid);
   const userSnap = await getDoc(userRef);
+
+  // Check if user email should be admin
+  const isAdminEmail = ADMIN_EMAILS.includes(result.user.email || '');
 
   if (!userSnap.exists()) {
     await setDoc(userRef, {
@@ -23,13 +29,21 @@ export const signInWithGoogle = async (): Promise<FirebaseUser> => {
       email: result.user.email,
       displayName: result.user.displayName,
       photoURL: result.user.photoURL,
-      role: 'user' as UserRole,
+      role: isAdminEmail ? 'admin' : 'user' as UserRole,
       createdAt: serverTimestamp(),
       lastLoginAt: serverTimestamp(),
-      isActive: true
+      isActive: true,
+      likedArts: [],
+      downloadedArts: [],
+      viewedArts: []
     });
   } else {
-    await setDoc(userRef, { lastLoginAt: serverTimestamp() }, { merge: true });
+    // If existing user is an admin email, ensure they have admin role
+    const updateData: Record<string, unknown> = { lastLoginAt: serverTimestamp() };
+    if (isAdminEmail && userSnap.data()?.role !== 'admin') {
+      updateData.role = 'admin';
+    }
+    await setDoc(userRef, updateData, { merge: true });
   }
 
   return result.user;

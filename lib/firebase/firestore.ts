@@ -13,11 +13,14 @@ import {
   startAfter,
   serverTimestamp,
   increment,
+  arrayUnion,
+  arrayRemove,
   DocumentSnapshot,
-  QueryDocumentSnapshot
+  QueryDocumentSnapshot,
+  Timestamp
 } from 'firebase/firestore';
 import { db } from '../../config/firebase';
-import { ArtPiece, User, SummaryStats, ArtFormData } from '../../types';
+import { ArtPiece, User, SummaryStats, ArtFormData, DownloadRecord, ViewRecord } from '../../types';
 
 // ============ ART PIECES ============
 
@@ -130,6 +133,81 @@ export const getAllUsers = async (): Promise<User[]> => {
 export const updateUserRole = async (uid: string, role: string): Promise<void> => {
   const docRef = doc(db, 'users', uid);
   await updateDoc(docRef, { role });
+};
+
+// ============ USER ACTIVITY ============
+
+export const toggleLikeArt = async (uid: string, artId: string, isLiked: boolean): Promise<void> => {
+  const userRef = doc(db, 'users', uid);
+
+  if (isLiked) {
+    await updateDoc(userRef, { likedArts: arrayRemove(artId) });
+    await decrementLikes(artId);
+  } else {
+    await updateDoc(userRef, { likedArts: arrayUnion(artId) });
+    await incrementLikes(artId);
+  }
+};
+
+export const recordDownload = async (uid: string, artId: string): Promise<void> => {
+  const userRef = doc(db, 'users', uid);
+  const record: DownloadRecord = {
+    artId,
+    downloadedAt: Timestamp.now()
+  };
+  await updateDoc(userRef, { downloadedArts: arrayUnion(record) });
+};
+
+export const recordView = async (uid: string, artId: string): Promise<void> => {
+  const userRef = doc(db, 'users', uid);
+  const record: ViewRecord = {
+    artId,
+    viewedAt: Timestamp.now()
+  };
+
+  // Get current viewedArts to check if already viewed
+  const userSnap = await getDoc(userRef);
+  if (userSnap.exists()) {
+    const userData = userSnap.data();
+    const viewedArts = userData?.viewedArts || [];
+    // Check if already viewed (to avoid duplicates)
+    const alreadyViewed = viewedArts.some((v: ViewRecord) => v.artId === artId);
+    if (!alreadyViewed) {
+      await updateDoc(userRef, { viewedArts: arrayUnion(record) });
+      await incrementViews(artId);
+    }
+  }
+};
+
+export const getUserActivity = async (uid: string): Promise<{
+  likedArts: string[];
+  downloadedArts: DownloadRecord[];
+  viewedArts: ViewRecord[];
+}> => {
+  const userRef = doc(db, 'users', uid);
+  const userSnap = await getDoc(userRef);
+
+  if (userSnap.exists()) {
+    const data = userSnap.data();
+    return {
+      likedArts: data.likedArts || [],
+      downloadedArts: data.downloadedArts || [],
+      viewedArts: data.viewedArts || []
+    };
+  }
+
+  return { likedArts: [], downloadedArts: [], viewedArts: [] };
+};
+
+export const getArtPiecesByIds = async (ids: string[]): Promise<ArtPiece[]> => {
+  if (ids.length === 0) return [];
+
+  const artPieces: ArtPiece[] = [];
+  for (const id of ids) {
+    const art = await getArtPieceById(id);
+    if (art) artPieces.push(art);
+  }
+  return artPieces;
 };
 
 // ============ STATS ============

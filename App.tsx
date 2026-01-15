@@ -4,6 +4,7 @@ import { onAuthChange, getUserData } from './lib/firebase/auth';
 import { useAuthStore } from './store/authStore';
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
+import UserDashboard from './pages/UserDashboard';
 import AdminLayout from './components/layout/AdminLayout';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminArtPage from './pages/admin/AdminArtPage';
@@ -35,6 +36,7 @@ const App: React.FC = () => {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/dashboard" element={<UserDashboard />} />
 
         <Route
           path="/admin"

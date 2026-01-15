@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Search, ChevronDown, Menu } from 'lucide-react';
+import { Search, Menu } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import LoginButton from './auth/LoginButton';
 import UserMenu from './auth/UserMenu';
@@ -35,11 +35,6 @@ const Navbar: React.FC = () => {
 
       {/* Right Actions */}
       <div className="flex items-center gap-4">
-        <button className="hidden sm:flex items-center gap-2 text-sm text-gray-300 bg-[#1f1f1f] border border-gray-800 px-4 py-2 rounded-lg hover:border-gray-600 transition-colors">
-          <span>카테고리</span>
-          <ChevronDown className="w-4 h-4" />
-        </button>
-
         {/* Auth Section */}
         {!isLoading && (
           isAuthenticated ? (
