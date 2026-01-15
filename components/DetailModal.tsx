@@ -19,7 +19,7 @@ const DetailModal: React.FC<DetailModalProps> = ({ art, onClose, relatedArt, onS
   const [enhancedPrompt, setEnhancedPrompt] = useState<string | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isLiked, setIsLiked] = useState(false);
-  const [likeCount, setLikeCount] = useState(art.likes);
+  const [likeCount, setLikeCount] = useState(Math.max(0, art.likes || 0));
 
   const hasMultipleImages = art.imageUrls.length > 1;
 
@@ -50,7 +50,7 @@ const DetailModal: React.FC<DetailModalProps> = ({ art, onClose, relatedArt, onS
     // Optimistic UI update
     const wasLiked = isLiked;
     setIsLiked(!wasLiked);
-    setLikeCount(prev => wasLiked ? prev - 1 : prev + 1);
+    setLikeCount(prev => wasLiked ? Math.max(0, prev - 1) : prev + 1);
 
     try {
       await toggleLikeArt(user.uid, art.id, wasLiked);
@@ -58,7 +58,7 @@ const DetailModal: React.FC<DetailModalProps> = ({ art, onClose, relatedArt, onS
       // Rollback on error
       console.error('Error toggling like:', error);
       setIsLiked(wasLiked);
-      setLikeCount(prev => wasLiked ? prev + 1 : prev - 1);
+      setLikeCount(prev => wasLiked ? prev + 1 : Math.max(0, prev - 1));
       alert('좋아요 처리 중 오류가 발생했습니다.');
     }
   };
