@@ -22,10 +22,10 @@ const ArtCard: React.FC<ArtCardProps> = ({ art, onClick }) => {
           loading="lazy"
           className="w-full h-auto object-cover transform transition-transform duration-500 group-hover:scale-110"
         />
-        {/* Overlay gradient - bottom only, 2 lines max */}
-        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent p-3 pt-6">
+        {/* Overlay gradient - bottom only */}
+        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent p-3 pt-8">
             <h3 className="text-white text-sm font-semibold truncate">{art.title}</h3>
-            <p className="text-xs text-gray-400 mt-0.5 truncate">{art.prompt}</p>
+            <p className="text-xs text-gray-400 mt-0.5 line-clamp-2">{art.prompt}</p>
         </div>
 
         {/* Multiple images indicator */}
