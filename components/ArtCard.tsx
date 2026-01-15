@@ -22,8 +22,8 @@ const ArtCard: React.FC<ArtCardProps> = ({ art, onClick }) => {
           loading="lazy"
           className="w-full h-auto object-cover transform transition-transform duration-500 group-hover:scale-110"
         />
-        {/* Overlay gradient - always visible */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-3 md:p-4">
+        {/* Overlay gradient - bottom only */}
+        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3 md:p-4 pt-8 md:pt-12">
             <h3 className="text-white text-sm md:text-base font-semibold truncate">{art.title}</h3>
             <p className="text-xs text-gray-400 mt-1 line-clamp-2 hidden md:block">{art.prompt}</p>
         </div>
