@@ -287,9 +287,9 @@ const UserDashboard: React.FC = () => {
 
   const tabs: { id: TabType; label: string; icon: React.ReactNode; count: number }[] = [
     { id: 'likes', label: '좋아요', icon: <Heart className="w-4 h-4" />, count: likedArts.length },
-    { id: 'downloads', label: '다운로드', icon: <Download className="w-4 h-4" />, count: downloadedArts.length },
-    { id: 'views', label: '조회 내역', icon: <Eye className="w-4 h-4" />, count: viewedArts.length },
-    ...(isAdmin ? [{ id: 'artManage' as TabType, label: '아트 관리', icon: <Settings className="w-4 h-4" />, count: allArts.length }] : [])
+    { id: 'downloads', label: '다운', icon: <Download className="w-4 h-4" />, count: downloadedArts.length },
+    { id: 'views', label: '조회', icon: <Eye className="w-4 h-4" />, count: viewedArts.length },
+    ...(isAdmin ? [{ id: 'artManage' as TabType, label: '관리', icon: <Settings className="w-4 h-4" />, count: allArts.length }] : [])
   ];
 
   const renderArtGrid = (arts: ArtPiece[]) => (
