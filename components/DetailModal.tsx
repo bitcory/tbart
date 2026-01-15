@@ -64,28 +64,38 @@ const DetailModal: React.FC<DetailModalProps> = ({ art, onClose, relatedArt, onS
   };
 
   const handleDownload = async () => {
-    try {
-      // Record download if user is logged in
-      if (user) {
-        await recordDownload(user.uid, art.id);
-      }
+    const imageUrl = art.imageUrls[currentImageIndex];
 
-      // Download image
-      const response = await fetch(art.imageUrls[currentImageIndex]);
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${art.title}-${currentImageIndex + 1}.jpg`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      window.URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error('Error downloading image:', error);
-      // Fallback: open in new tab
-      window.open(art.imageUrls[currentImageIndex], '_blank');
+    // Record download if user is logged in
+    if (user) {
+      try {
+        await recordDownload(user.uid, art.id);
+      } catch (error) {
+        console.error('Error recording download:', error);
+      }
     }
+
+    // Try fetch-based download (works for same-origin or CORS-enabled URLs)
+    try {
+      const response = await fetch(imageUrl, { mode: 'cors' });
+      if (response.ok) {
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${art.title}-${currentImageIndex + 1}.jpg`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        return;
+      }
+    } catch {
+      // CORS error - try alternative methods
+    }
+
+    // Fallback: open in new tab for external URLs
+    window.open(imageUrl, '_blank');
   };
 
   const handleCopy = () => {

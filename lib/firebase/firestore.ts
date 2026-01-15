@@ -6,6 +6,7 @@ import {
   addDoc,
   updateDoc,
   deleteDoc,
+  setDoc,
   query,
   where,
   orderBy,
@@ -222,10 +223,10 @@ export const getStats = async (): Promise<SummaryStats | null> => {
 
 export const updateStats = async (data: Record<string, any>): Promise<void> => {
   const docRef = doc(db, 'stats', 'summary');
-  await updateDoc(docRef, {
+  await setDoc(docRef, {
     ...data,
     lastUpdated: serverTimestamp()
-  });
+  }, { merge: true });
 };
 
 export const initializeStats = async (): Promise<void> => {
