@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, Menu, X } from 'lucide-react';
+import { Search, X } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
+import { useSearchStore } from '../store/searchStore';
 import LoginButton from './auth/LoginButton';
 import UserMenu from './auth/UserMenu';
 
 const Navbar: React.FC = () => {
   const { isAuthenticated } = useAuth();
+  const { query, setQuery } = useSearchStore();
   const [showMobileSearch, setShowMobileSearch] = useState(false);
 
   return (
@@ -25,9 +27,19 @@ const Navbar: React.FC = () => {
           </div>
           <input
             type="text"
-            placeholder="프롬프트 검색..."
-            className="w-full bg-[#1f1f1f] border border-gray-800 text-gray-200 text-sm rounded-lg pl-10 pr-4 py-2.5 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="제목 또는 프롬프트 검색..."
+            className="w-full bg-[#1f1f1f] border border-gray-800 text-gray-200 text-sm rounded-lg pl-10 pr-10 py-2.5 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all"
           />
+          {query && (
+            <button
+              onClick={() => setQuery('')}
+              className="absolute inset-y-0 right-2 flex items-center text-gray-500 hover:text-white"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
         </div>
 
         {/* Right Actions */}
@@ -58,10 +70,20 @@ const Navbar: React.FC = () => {
             </div>
             <input
               type="text"
-              placeholder="프롬프트 검색..."
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="제목 또는 프롬프트 검색..."
               autoFocus
-              className="w-full bg-[#1f1f1f] border border-gray-800 text-gray-200 text-sm rounded-lg pl-10 pr-4 py-2.5 focus:outline-none focus:border-indigo-500/50"
+              className="w-full bg-[#1f1f1f] border border-gray-800 text-gray-200 text-sm rounded-lg pl-10 pr-10 py-2.5 focus:outline-none focus:border-indigo-500/50"
             />
+            {query && (
+              <button
+                onClick={() => setQuery('')}
+                className="absolute inset-y-0 right-2 flex items-center text-gray-500 hover:text-white"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
           </div>
         </div>
       )}

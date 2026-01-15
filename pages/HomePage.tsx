@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { Loader2 } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import { Loader2, SearchX } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import ArtCard from '../components/ArtCard';
 import DetailModal from '../components/DetailModal';
 import SplineIntro from '../components/SplineIntro';
 import { ArtPiece, ViewMode } from '../types';
 import { useArtPieces } from '../hooks/useArtPieces';
+import { useSearchStore } from '../store/searchStore';
 import { MOCK_ART_PIECES } from '../constants';
 
 const HomePage: React.FC = () => {
@@ -18,10 +19,22 @@ const HomePage: React.FC = () => {
 
   // Firebase에서 데이터 가져오기 시도, 실패 시 MOCK 데이터 사용
   const { artPieces: firebaseArt, isLoading, isLoadingMore, loadMore, hasMore, error } = useArtPieces();
+  const { query } = useSearchStore();
 
   // Firebase 연결 실패 시 MOCK 데이터 사용
   const artPieces = error || firebaseArt.length === 0 ? MOCK_ART_PIECES : firebaseArt;
   const showMockData = error || firebaseArt.length === 0;
+
+  // 검색 필터링
+  const filteredArtPieces = useMemo(() => {
+    if (!query.trim()) return artPieces;
+    const lowerQuery = query.toLowerCase();
+    return artPieces.filter(art =>
+      art.title.toLowerCase().includes(lowerQuery) ||
+      art.prompt.toLowerCase().includes(lowerQuery) ||
+      art.tags.some(tag => tag.toLowerCase().includes(lowerQuery))
+    );
+  }, [artPieces, query]);
 
   const handleEnterGallery = () => {
     setViewMode(ViewMode.GALLERY);
@@ -57,36 +70,54 @@ const HomePage: React.FC = () => {
             </div>
           ) : (
             <>
-              {/* Masonry Layout */}
-              <div className="columns-2 md:columns-3 lg:columns-4 xl:columns-5 gap-4 space-y-4">
-                {artPieces.map((art, index) => (
-                  <ArtCard
-                    key={`${art.id}-${index}`}
-                    art={art}
-                    onClick={handleArtClick}
-                  />
-                ))}
-              </div>
-
-              {/* Load More Trigger */}
-              {!showMockData && (
-                <div className="mt-12 mb-12 flex justify-center">
-                  {isLoadingMore ? (
-                    <div className="flex items-center gap-2 text-gray-400">
-                      <Loader2 className="w-5 h-5 animate-spin" />
-                      <span>Loading more prompts...</span>
-                    </div>
-                  ) : hasMore ? (
-                    <button
-                      onClick={loadMore}
-                      className="group relative inline-flex h-12 items-center justify-center overflow-hidden rounded-md bg-neutral-900 px-6 font-medium text-neutral-200 transition-all duration-300 hover:bg-neutral-800 hover:text-white hover:ring-2 hover:ring-neutral-700 hover:ring-offset-2 hover:ring-offset-neutral-900"
-                    >
-                      <span className="relative">Load More Inspiration</span>
-                    </button>
-                  ) : (
-                    <p className="text-gray-500">모든 아트를 불러왔습니다</p>
-                  )}
+              {/* Search Results Info */}
+              {query && (
+                <div className="mb-6 flex items-center gap-2 text-gray-400">
+                  <span>"{query}" 검색 결과: {filteredArtPieces.length}개</span>
                 </div>
+              )}
+
+              {/* No Results */}
+              {filteredArtPieces.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-20 text-gray-500">
+                  <SearchX className="w-16 h-16 mb-4" />
+                  <p className="text-lg">검색 결과가 없습니다</p>
+                  <p className="text-sm mt-2">다른 키워드로 검색해보세요</p>
+                </div>
+              ) : (
+                <>
+                  {/* Masonry Layout */}
+                  <div className="columns-2 md:columns-3 lg:columns-4 xl:columns-5 gap-4 space-y-4">
+                    {filteredArtPieces.map((art, index) => (
+                      <ArtCard
+                        key={`${art.id}-${index}`}
+                        art={art}
+                        onClick={handleArtClick}
+                      />
+                    ))}
+                  </div>
+
+                  {/* Load More Trigger */}
+                  {!showMockData && !query && (
+                    <div className="mt-12 mb-12 flex justify-center">
+                      {isLoadingMore ? (
+                        <div className="flex items-center gap-2 text-gray-400">
+                          <Loader2 className="w-5 h-5 animate-spin" />
+                          <span>Loading more prompts...</span>
+                        </div>
+                      ) : hasMore ? (
+                        <button
+                          onClick={loadMore}
+                          className="group relative inline-flex h-12 items-center justify-center overflow-hidden rounded-md bg-neutral-900 px-6 font-medium text-neutral-200 transition-all duration-300 hover:bg-neutral-800 hover:text-white hover:ring-2 hover:ring-neutral-700 hover:ring-offset-2 hover:ring-offset-neutral-900"
+                        >
+                          <span className="relative">Load More Inspiration</span>
+                        </button>
+                      ) : (
+                        <p className="text-gray-500">모든 아트를 불러왔습니다</p>
+                      )}
+                    </div>
+                  )}
+                </>
               )}
             </>
           )}
