@@ -3,6 +3,7 @@ import { ArtPiece } from '../types';
 import { X, Copy, Download, Check, Heart } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { toggleLikeArt, recordDownload, recordView, getUserActivity } from '../lib/firebase/firestore';
+import Navbar from './Navbar';
 
 interface DetailModalProps {
   art: ArtPiece;
@@ -103,7 +104,10 @@ const DetailModal: React.FC<DetailModalProps> = ({ art, onClose, relatedArt, onS
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-black/95 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex flex-col bg-[#0a0a0a]">
+      {/* Header */}
+      <Navbar />
+
       {/* Scrollable Content Area */}
       <div className="flex-1 overflow-y-auto pb-20 lg:pb-0">
         <div className="relative w-full max-w-7xl mx-auto min-h-full bg-[#0a0a0a] shadow-2xl flex flex-col lg:flex-row">
