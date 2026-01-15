@@ -151,7 +151,7 @@ const DetailModal: React.FC<DetailModalProps> = ({ art, onClose, relatedArt, onS
         </div>
 
         {/* Right: Details */}
-        <div className="lg:w-[40%] p-4 md:p-6 lg:p-12 flex flex-col gap-5 md:gap-8 pb-24 lg:pb-12">
+        <div className="lg:w-[40%] p-4 md:p-6 lg:p-12 flex flex-col gap-5 md:gap-8 pb-28 lg:pb-12">
 
           {/* Header */}
           <div>
@@ -215,7 +215,7 @@ const DetailModal: React.FC<DetailModalProps> = ({ art, onClose, relatedArt, onS
         </div>
 
         {/* Fixed Action Buttons - Mobile */}
-        <div className="fixed bottom-0 left-0 right-0 lg:hidden bg-[#0a0a0a]/95 backdrop-blur-md border-t border-gray-800 p-3 flex gap-3 z-40">
+        <div className="fixed bottom-0 left-0 right-0 lg:hidden bg-[#0a0a0a] border-t border-gray-700 p-4 flex gap-3 z-40 safe-area-bottom">
           <button
             onClick={handleLike}
             className={`flex-1 py-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 ${
