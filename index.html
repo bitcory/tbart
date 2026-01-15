@@ -42,12 +42,20 @@
       ::-webkit-scrollbar-thumb:hover {
         background: #555;
       }
-      .hide-scrollbar::-webkit-scrollbar {
+      .hide-scrollbar::-webkit-scrollbar,
+      .scrollbar-hide::-webkit-scrollbar {
         display: none;
       }
-      .hide-scrollbar {
+      .hide-scrollbar,
+      .scrollbar-hide {
         -ms-overflow-style: none;
         scrollbar-width: none;
+      }
+      /* Mobile touch improvements */
+      @media (max-width: 768px) {
+        * {
+          -webkit-tap-highlight-color: transparent;
+        }
       }
     </style>
   </head>

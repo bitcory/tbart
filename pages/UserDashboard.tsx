@@ -293,22 +293,22 @@ const UserDashboard: React.FC = () => {
   ];
 
   const renderArtGrid = (arts: ArtPiece[]) => (
-    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 md:gap-4">
       {arts.map((art) => (
         <Link
           key={art.id}
           to={`/?art=${art.id}`}
-          className="group relative aspect-square rounded-xl overflow-hidden bg-gray-900"
+          className="group relative aspect-square rounded-lg md:rounded-xl overflow-hidden bg-gray-900"
         >
           <img
             src={art.imageUrls[0]}
             alt={art.title}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-            <div className="absolute bottom-0 left-0 right-0 p-3">
-              <p className="text-white text-sm font-medium truncate">{art.title}</p>
-              <p className="text-gray-400 text-xs">{art.model}</p>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+            <div className="absolute bottom-0 left-0 right-0 p-2 md:p-3">
+              <p className="text-white text-xs md:text-sm font-medium truncate">{art.title}</p>
+              <p className="text-gray-400 text-xs hidden md:block">{art.model}</p>
             </div>
           </div>
         </Link>
@@ -317,23 +317,26 @@ const UserDashboard: React.FC = () => {
   );
 
   const renderArtListWithDate = (items: { art: ArtPiece; record: { artId: string; downloadedAt?: { seconds: number }; viewedAt?: { seconds: number } } }[]) => (
-    <div className="space-y-4">
+    <div className="space-y-2 md:space-y-4">
       {items.map((item, index) => (
         <Link
           key={`${item.art.id}-${index}`}
           to={`/?art=${item.art.id}`}
-          className="flex items-center gap-4 p-4 bg-[#151515] border border-gray-800 rounded-xl hover:bg-white/5 transition-colors"
+          className="flex items-center gap-3 md:gap-4 p-3 md:p-4 bg-[#151515] border border-gray-800 rounded-lg md:rounded-xl hover:bg-white/5 transition-colors"
         >
           <img
             src={item.art.imageUrls[0]}
             alt={item.art.title}
-            className="w-16 h-16 rounded-lg object-cover"
+            className="w-12 h-12 md:w-16 md:h-16 rounded-lg object-cover shrink-0"
           />
           <div className="flex-1 min-w-0">
-            <p className="text-white font-medium truncate">{item.art.title}</p>
-            <p className="text-gray-500 text-sm truncate">{item.art.prompt}</p>
+            <p className="text-white text-sm md:text-base font-medium truncate">{item.art.title}</p>
+            <p className="text-gray-500 text-xs md:text-sm truncate">{item.art.prompt}</p>
+            <p className="text-gray-600 text-xs mt-1 md:hidden">
+              {formatDate(item.record.downloadedAt || item.record.viewedAt || { seconds: 0 })}
+            </p>
           </div>
-          <div className="flex items-center gap-2 text-gray-500 text-sm">
+          <div className="hidden md:flex items-center gap-2 text-gray-500 text-sm shrink-0">
             <Calendar className="w-4 h-4" />
             {formatDate(item.record.downloadedAt || item.record.viewedAt || { seconds: 0 })}
           </div>
@@ -346,50 +349,50 @@ const UserDashboard: React.FC = () => {
     <div className="min-h-screen bg-black">
       <Navbar />
 
-      <div className="max-w-6xl mx-auto px-4 py-8">
+      <div className="max-w-6xl mx-auto px-3 md:px-4 py-4 md:py-8">
         {/* Header */}
-        <div className="flex items-center gap-4 mb-8">
+        <div className="flex items-center gap-3 md:gap-4 mb-6 md:mb-8">
           <button
             onClick={() => navigate('/')}
-            className="p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+            className="p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors shrink-0"
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 min-w-0">
             {user?.photoURL ? (
               <img
                 src={user.photoURL}
                 alt={user.displayName || ''}
-                className="w-12 h-12 rounded-full border-2 border-indigo-500/50"
+                className="w-10 h-10 md:w-12 md:h-12 rounded-full border-2 border-indigo-500/50 shrink-0"
               />
             ) : (
-              <div className="w-12 h-12 rounded-full bg-indigo-600 flex items-center justify-center">
-                <span className="text-white text-lg font-bold">
+              <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-indigo-600 flex items-center justify-center shrink-0">
+                <span className="text-white text-base md:text-lg font-bold">
                   {user?.displayName?.charAt(0) || '?'}
                 </span>
               </div>
             )}
-            <div>
-              <h1 className="text-xl font-bold text-white">{user?.displayName}</h1>
-              <p className="text-gray-400 text-sm">{user?.email}</p>
+            <div className="min-w-0">
+              <h1 className="text-base md:text-xl font-bold text-white truncate">{user?.displayName}</h1>
+              <p className="text-gray-400 text-xs md:text-sm truncate">{user?.email}</p>
             </div>
           </div>
         </div>
 
-        {/* Tabs */}
-        <div className="flex gap-2 mb-8 border-b border-gray-800 pb-4">
+        {/* Tabs - Horizontal scroll on mobile */}
+        <div className="flex gap-2 mb-6 md:mb-8 border-b border-gray-800 pb-3 md:pb-4 overflow-x-auto hide-scrollbar -mx-3 px-3 md:mx-0 md:px-0">
           {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className={`flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-2 rounded-lg text-xs md:text-sm font-medium transition-colors whitespace-nowrap shrink-0 ${
                 activeTab === tab.id
                   ? 'bg-indigo-600 text-white'
                   : 'text-gray-400 hover:text-white hover:bg-white/10'
               }`}
             >
               {tab.icon}
-              {tab.label}
+              <span className="hidden sm:inline">{tab.label}</span>
               <span className={`px-1.5 py-0.5 rounded text-xs ${
                 activeTab === tab.id ? 'bg-white/20' : 'bg-gray-800'
               }`}>

@@ -103,31 +103,31 @@ const DetailModal: React.FC<DetailModalProps> = ({ art, onClose, relatedArt, onS
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/95 backdrop-blur-sm flex justify-center">
-      <div className="relative w-full max-w-7xl min-h-screen bg-[#0a0a0a] shadow-2xl flex flex-col lg:flex-row">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/95 backdrop-blur-sm">
+      <div className="relative w-full max-w-7xl mx-auto min-h-screen bg-[#0a0a0a] shadow-2xl flex flex-col lg:flex-row">
 
         {/* Close Button */}
         <button
             onClick={onClose}
-            className="absolute top-4 right-4 z-50 p-2 bg-black/50 hover:bg-white/10 rounded-full text-white transition-colors"
+            className="fixed top-3 right-3 md:absolute md:top-4 md:right-4 z-50 p-2 bg-black/70 hover:bg-white/10 rounded-full text-white transition-colors"
         >
-            <X className="w-6 h-6" />
+            <X className="w-5 h-5 md:w-6 md:h-6" />
         </button>
 
         {/* Left: Image with Thumbnails */}
-        <div className="lg:w-[60%] bg-[#050505] flex flex-col items-center p-4 lg:p-8 lg:sticky lg:top-0 lg:h-screen lg:overflow-y-auto">
+        <div className="lg:w-[60%] bg-[#050505] flex flex-col items-center p-3 md:p-4 lg:p-8 lg:sticky lg:top-0 lg:h-screen lg:overflow-y-auto">
           {/* Main Image */}
           <div className="relative w-full flex justify-center shadow-2xl shadow-indigo-500/10 rounded-lg overflow-hidden">
             <img
                 src={art.imageUrls[currentImageIndex]}
                 alt={art.title}
-                className="max-w-full max-h-[60vh] lg:max-h-[70vh] object-contain transition-opacity duration-300"
+                className="max-w-full max-h-[45vh] md:max-h-[60vh] lg:max-h-[70vh] object-contain transition-opacity duration-300"
             />
           </div>
 
           {/* Thumbnail Grid - 3 per row */}
           {hasMultipleImages && (
-            <div className="w-full mt-4 grid grid-cols-3 gap-2 max-w-md">
+            <div className="w-full mt-3 grid grid-cols-4 md:grid-cols-3 gap-2 max-w-md">
               {art.imageUrls.map((url, index) => (
                 <button
                   key={index}
@@ -151,12 +151,12 @@ const DetailModal: React.FC<DetailModalProps> = ({ art, onClose, relatedArt, onS
         </div>
 
         {/* Right: Details */}
-        <div className="lg:w-[40%] p-6 lg:p-12 flex flex-col gap-8">
+        <div className="lg:w-[40%] p-4 md:p-6 lg:p-12 flex flex-col gap-5 md:gap-8 pb-24 lg:pb-12">
 
           {/* Header */}
           <div>
-            <h1 className="text-3xl font-bold text-white mb-2">{art.title}</h1>
-            <div className="flex items-center gap-3 text-sm text-gray-400">
+            <h1 className="text-xl md:text-3xl font-bold text-white mb-2">{art.title}</h1>
+            <div className="flex flex-wrap items-center gap-2 md:gap-3 text-xs md:text-sm text-gray-400">
                 <span className="px-2 py-1 bg-indigo-500/20 text-indigo-400 rounded">{art.author}</span>
                 <span>{art.date}</span>
                 {hasMultipleImages && (
@@ -167,30 +167,8 @@ const DetailModal: React.FC<DetailModalProps> = ({ art, onClose, relatedArt, onS
             </div>
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex gap-3">
-            <button
-              onClick={handleLike}
-              className={`flex-1 py-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 ${
-                isLiked
-                  ? 'bg-pink-600 hover:bg-pink-700 text-white'
-                  : 'bg-gray-700 hover:bg-gray-600 text-white'
-              }`}
-            >
-              <Heart className={`w-4 h-4 ${isLiked ? 'fill-current' : ''}`} />
-              {likeCount}
-            </button>
-            <button
-              onClick={handleDownload}
-              className="flex-1 bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
-            >
-              <Download className="w-4 h-4" />
-              다운로드
-            </button>
-          </div>
-
           {/* Prompt Section */}
-          <div className="bg-[#151515] border border-gray-800 rounded-xl p-5">
+          <div className="bg-[#151515] border border-gray-800 rounded-xl p-4 md:p-5">
             <div className="flex justify-between items-center mb-3">
                 <span className="text-sm font-semibold text-gray-300">Prompt</span>
                 <button
@@ -201,11 +179,11 @@ const DetailModal: React.FC<DetailModalProps> = ({ art, onClose, relatedArt, onS
                     {copied ? 'Copied' : 'Copy'}
                 </button>
             </div>
-            <p className="text-gray-300 text-sm leading-relaxed font-light font-mono">
+            <p className="text-gray-300 text-xs md:text-sm leading-relaxed font-light font-mono">
                 {art.prompt}
             </p>
 
-            <div className="mt-4 flex flex-wrap gap-2">
+            <div className="mt-3 md:mt-4 flex flex-wrap gap-1.5 md:gap-2">
                 {art.tags.map(tag => (
                     <span key={tag} className="text-xs bg-gray-800 text-gray-400 px-2 py-1 rounded-full border border-gray-700">
                         #{tag}
@@ -214,10 +192,10 @@ const DetailModal: React.FC<DetailModalProps> = ({ art, onClose, relatedArt, onS
             </div>
           </div>
 
-          {/* Related Prompts */}
-          <div>
+          {/* Related Prompts - Hidden on small mobile to save space */}
+          <div className="hidden md:block">
             <h3 className="text-lg font-semibold text-white mb-4">Related Prompts</h3>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            <div className="grid grid-cols-3 gap-3">
                 {relatedArt.slice(0, 3).map(related => (
                     <div
                         key={related.id}
@@ -234,7 +212,50 @@ const DetailModal: React.FC<DetailModalProps> = ({ art, onClose, relatedArt, onS
                 ))}
             </div>
           </div>
+        </div>
 
+        {/* Fixed Action Buttons - Mobile */}
+        <div className="fixed bottom-0 left-0 right-0 lg:hidden bg-[#0a0a0a]/95 backdrop-blur-md border-t border-gray-800 p-3 flex gap-3 z-40">
+          <button
+            onClick={handleLike}
+            className={`flex-1 py-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 ${
+              isLiked
+                ? 'bg-pink-600 text-white'
+                : 'bg-gray-700 text-white'
+            }`}
+          >
+            <Heart className={`w-5 h-5 ${isLiked ? 'fill-current' : ''}`} />
+            {likeCount}
+          </button>
+          <button
+            onClick={handleDownload}
+            className="flex-1 bg-green-600 text-white py-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+          >
+            <Download className="w-5 h-5" />
+            다운로드
+          </button>
+        </div>
+
+        {/* Desktop Action Buttons */}
+        <div className="hidden lg:flex gap-3 absolute top-4 left-[60%] ml-8 right-16">
+          <button
+            onClick={handleLike}
+            className={`px-6 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 ${
+              isLiked
+                ? 'bg-pink-600 hover:bg-pink-700 text-white'
+                : 'bg-gray-700 hover:bg-gray-600 text-white'
+            }`}
+          >
+            <Heart className={`w-4 h-4 ${isLiked ? 'fill-current' : ''}`} />
+            {likeCount}
+          </button>
+          <button
+            onClick={handleDownload}
+            className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors flex items-center gap-2"
+          >
+            <Download className="w-4 h-4" />
+            다운로드
+          </button>
         </div>
       </div>
     </div>
