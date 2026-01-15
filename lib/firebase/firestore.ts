@@ -71,7 +71,7 @@ export const getArtPieceById = async (id: string): Promise<ArtPiece | null> => {
 };
 
 export const addArtPiece = async (
-  data: ArtFormData & { imageUrls: string[]; uploadedBy: string }
+  data: ArtFormData & { imageUrls: string[]; originalUrls?: string[]; uploadedBy: string }
 ): Promise<string> => {
   const docRef = await addDoc(collection(db, 'artPieces'), {
     ...data,
@@ -89,7 +89,7 @@ export const addArtPiece = async (
 
 export const updateArtPiece = async (
   id: string,
-  data: Partial<ArtFormData & { imageUrls: string[] }>
+  data: Partial<ArtFormData & { imageUrls: string[]; originalUrls?: string[] }>
 ): Promise<void> => {
   const docRef = doc(db, 'artPieces', id);
   await updateDoc(docRef, {

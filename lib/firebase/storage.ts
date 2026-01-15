@@ -7,19 +7,14 @@ import {
 import { storage } from '../../config/firebase';
 import imageCompression from 'browser-image-compression';
 
-export const uploadImage = async (
+// Upload a single file and return URL
+const uploadFile = async (
   file: File,
   path: string,
   onProgress?: (progress: number) => void
 ): Promise<string> => {
-  const compressedFile = await imageCompression(file, {
-    maxSizeMB: 1,
-    maxWidthOrHeight: 1920,
-    useWebWorker: true
-  });
-
   const storageRef = ref(storage, path);
-  const uploadTask = uploadBytesResumable(storageRef, compressedFile);
+  const uploadTask = uploadBytesResumable(storageRef, file);
 
   return new Promise((resolve, reject) => {
     uploadTask.on(
@@ -37,26 +32,73 @@ export const uploadImage = async (
   });
 };
 
+// Upload image with both thumbnail and original
+export const uploadImage = async (
+  file: File,
+  path: string,
+  onProgress?: (progress: number) => void
+): Promise<{ thumbnailUrl: string; originalUrl: string }> => {
+  // Create thumbnail (300px, low quality for fast loading)
+  const thumbnail = await imageCompression(file, {
+    maxSizeMB: 0.1,
+    maxWidthOrHeight: 400,
+    useWebWorker: true
+  });
+
+  // Create optimized original (1920px, good quality for viewing/download)
+  const original = await imageCompression(file, {
+    maxSizeMB: 2,
+    maxWidthOrHeight: 1920,
+    useWebWorker: true
+  });
+
+  // Upload both
+  const thumbnailPath = path.replace(/(\.[^.]+)$/, '_thumb$1');
+  const [thumbnailUrl, originalUrl] = await Promise.all([
+    uploadFile(thumbnail, thumbnailPath),
+    uploadFile(original, path, onProgress)
+  ]);
+
+  return { thumbnailUrl, originalUrl };
+};
+
+// Legacy single URL upload (for backwards compatibility)
+export const uploadImageSingle = async (
+  file: File,
+  path: string,
+  onProgress?: (progress: number) => void
+): Promise<string> => {
+  const compressedFile = await imageCompression(file, {
+    maxSizeMB: 1,
+    maxWidthOrHeight: 1920,
+    useWebWorker: true
+  });
+
+  return uploadFile(compressedFile, path, onProgress);
+};
+
 export const uploadMultipleImages = async (
   files: File[],
   basePath: string,
   onProgress?: (index: number, progress: number) => void
-): Promise<string[]> => {
-  const urls: string[] = [];
+): Promise<{ thumbnailUrls: string[]; originalUrls: string[] }> => {
+  const thumbnailUrls: string[] = [];
+  const originalUrls: string[] = [];
 
   for (let i = 0; i < files.length; i++) {
     const file = files[i];
     const timestamp = Date.now();
     const path = `${basePath}/${timestamp}_${i}_${file.name}`;
 
-    const url = await uploadImage(file, path, (progress) => {
+    const { thumbnailUrl, originalUrl } = await uploadImage(file, path, (progress) => {
       onProgress?.(i, progress);
     });
 
-    urls.push(url);
+    thumbnailUrls.push(thumbnailUrl);
+    originalUrls.push(originalUrl);
   }
 
-  return urls;
+  return { thumbnailUrls, originalUrls };
 };
 
 export const deleteImage = async (url: string): Promise<void> => {

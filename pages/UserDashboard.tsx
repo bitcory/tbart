@@ -206,10 +206,11 @@ const UserDashboard: React.FC = () => {
     setIsSubmitting(true);
     try {
       let imageUrls = [...existingImages];
+      let originalUrls = [...(editingArt?.originalUrls || existingImages)]; // fallback to existing for old data
 
       if (selectedFiles.length > 0) {
         setUploadProgress(new Array(selectedFiles.length).fill(0));
-        const newUrls = await uploadMultipleImages(
+        const uploaded = await uploadMultipleImages(
           selectedFiles,
           `arts/${Date.now()}`,
           (index, progress) => {
@@ -220,13 +221,14 @@ const UserDashboard: React.FC = () => {
             });
           }
         );
-        imageUrls = [...imageUrls, ...newUrls];
+        imageUrls = [...imageUrls, ...uploaded.thumbnailUrls];
+        originalUrls = [...originalUrls, ...uploaded.originalUrls];
       }
 
       if (editingArt) {
-        await updateArtPiece(editingArt.id, { ...formData, imageUrls });
+        await updateArtPiece(editingArt.id, { ...formData, imageUrls, originalUrls });
       } else {
-        await addArtPiece({ ...formData, imageUrls, uploadedBy: user.uid });
+        await addArtPiece({ ...formData, imageUrls, originalUrls, uploadedBy: user.uid });
       }
 
       // Reload arts

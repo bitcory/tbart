@@ -4,7 +4,8 @@ import { Timestamp } from 'firebase/firestore';
 export interface ArtPiece {
   id: string;
   title: string;
-  imageUrls: string[];
+  imageUrls: string[];        // Thumbnails for display (400px)
+  originalUrls?: string[];    // Original images for download (1920px)
   prompt: string;
   negativePrompt?: string;
   author: string;

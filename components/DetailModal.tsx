@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ArtPiece } from '../types';
-import { X, Copy, Download, Wand2, Check, ChevronLeft, ChevronRight, Heart } from 'lucide-react';
+import { X, Copy, Download, Wand2, Check, Heart } from 'lucide-react';
 import { GoogleGenAI } from "@google/genai";
 import { useAuth } from '../hooks/useAuth';
 import { toggleLikeArt, recordDownload, recordView, getUserActivity } from '../lib/firebase/firestore';
@@ -64,7 +64,8 @@ const DetailModal: React.FC<DetailModalProps> = ({ art, onClose, relatedArt, onS
   };
 
   const handleDownload = async () => {
-    const imageUrl = art.imageUrls[currentImageIndex];
+    // Use originalUrl for download, fallback to imageUrl for old data
+    const originalUrl = art.originalUrls?.[currentImageIndex] || art.imageUrls[currentImageIndex];
 
     // Record download if user is logged in
     if (user) {
@@ -77,7 +78,7 @@ const DetailModal: React.FC<DetailModalProps> = ({ art, onClose, relatedArt, onS
 
     // Try fetch-based download (works for same-origin or CORS-enabled URLs)
     try {
-      const response = await fetch(imageUrl, { mode: 'cors' });
+      const response = await fetch(originalUrl, { mode: 'cors' });
       if (response.ok) {
         const blob = await response.blob();
         const url = window.URL.createObjectURL(blob);
@@ -95,23 +96,13 @@ const DetailModal: React.FC<DetailModalProps> = ({ art, onClose, relatedArt, onS
     }
 
     // Fallback: open in new tab for external URLs
-    window.open(imageUrl, '_blank');
+    window.open(originalUrl, '_blank');
   };
 
   const handleCopy = () => {
     navigator.clipboard.writeText(art.prompt);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-  };
-
-  const handlePrevImage = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setCurrentImageIndex((prev) => (prev === 0 ? art.imageUrls.length - 1 : prev - 1));
-  };
-
-  const handleNextImage = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setCurrentImageIndex((prev) => (prev === art.imageUrls.length - 1 ? 0 : prev + 1));
   };
 
   const handleEnhancePrompt = async () => {
@@ -153,54 +144,40 @@ const DetailModal: React.FC<DetailModalProps> = ({ art, onClose, relatedArt, onS
             <X className="w-6 h-6" />
         </button>
 
-        {/* Left: Image with Carousel */}
-        <div className="lg:w-[60%] bg-[#050505] flex items-center justify-center p-4 lg:p-12 lg:sticky lg:top-0 lg:h-screen">
-          <div className="relative max-w-full max-h-full shadow-2xl shadow-indigo-500/10 rounded-lg overflow-hidden group">
+        {/* Left: Image with Thumbnails */}
+        <div className="lg:w-[60%] bg-[#050505] flex flex-col items-center p-4 lg:p-8 lg:sticky lg:top-0 lg:h-screen lg:overflow-y-auto">
+          {/* Main Image */}
+          <div className="relative w-full flex justify-center shadow-2xl shadow-indigo-500/10 rounded-lg overflow-hidden">
             <img
                 src={art.imageUrls[currentImageIndex]}
                 alt={art.title}
-                className="max-w-full max-h-[85vh] object-contain transition-opacity duration-300"
+                className="max-w-full max-h-[60vh] lg:max-h-[70vh] object-contain transition-opacity duration-300"
             />
-
-            {/* Carousel Navigation */}
-            {hasMultipleImages && (
-              <>
-                {/* Prev Button */}
-                <button
-                  onClick={handlePrevImage}
-                  className="absolute left-2 top-1/2 -translate-y-1/2 p-2 bg-black/60 hover:bg-black/80 rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity"
-                >
-                  <ChevronLeft className="w-6 h-6" />
-                </button>
-
-                {/* Next Button */}
-                <button
-                  onClick={handleNextImage}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-black/60 hover:bg-black/80 rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity"
-                >
-                  <ChevronRight className="w-6 h-6" />
-                </button>
-
-                {/* Dots Indicator */}
-                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-                  {art.imageUrls.map((_, index) => (
-                    <button
-                      key={index}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setCurrentImageIndex(index);
-                      }}
-                      className={`w-2 h-2 rounded-full transition-all ${
-                        index === currentImageIndex
-                          ? 'bg-white w-4'
-                          : 'bg-white/50 hover:bg-white/70'
-                      }`}
-                    />
-                  ))}
-                </div>
-              </>
-            )}
           </div>
+
+          {/* Thumbnail Grid - 3 per row */}
+          {hasMultipleImages && (
+            <div className="w-full mt-4 grid grid-cols-3 gap-2 max-w-md">
+              {art.imageUrls.map((url, index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentImageIndex(index)}
+                  className={`aspect-square rounded-lg overflow-hidden border-2 transition-all ${
+                    index === currentImageIndex
+                      ? 'border-indigo-500 ring-2 ring-indigo-500/50'
+                      : 'border-transparent hover:border-gray-600'
+                  }`}
+                >
+                  <img
+                    src={url}
+                    alt={`${art.title} - ${index + 1}`}
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                  />
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Right: Details */}
