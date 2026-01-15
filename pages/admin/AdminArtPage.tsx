@@ -183,30 +183,30 @@ const AdminArtPage: React.FC = () => {
   };
 
   return (
-    <div className="p-8">
-      <div className="flex items-center justify-between mb-8">
+    <div className="p-4 md:p-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-white">아트 관리</h1>
-          <p className="text-gray-400 mt-1">총 {artPieces.length}개의 아트</p>
+          <h1 className="text-xl md:text-2xl font-bold text-white">아트 관리</h1>
+          <p className="text-gray-400 text-sm mt-1">총 {artPieces.length}개의 아트</p>
         </div>
         <button
           onClick={() => openModal()}
-          className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+          className="flex items-center justify-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm md:text-base shrink-0"
         >
           <Plus className="w-5 h-5" />
-          새 아트 추가
+          <span>새 아트 추가</span>
         </button>
       </div>
 
       {/* Search */}
       <div className="relative mb-6">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 text-gray-500" />
         <input
           type="text"
           placeholder="아트 검색..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full bg-[#151515] border border-gray-800 text-white rounded-lg pl-10 pr-4 py-3 focus:outline-none focus:border-indigo-500"
+          className="w-full bg-[#151515] border border-gray-800 text-white rounded-lg pl-9 md:pl-10 pr-4 py-2.5 md:py-3 text-sm md:text-base focus:outline-none focus:border-indigo-500"
         />
       </div>
 
