@@ -121,19 +121,19 @@ const DetailModal: React.FC<DetailModalProps> = ({ art, onClose, relatedArt, onS
           </button>
 
           {/* Left: Image with Thumbnails */}
-          <div className="lg:w-[60%] bg-[#050505] flex flex-col items-center p-3 md:p-4 lg:p-8 lg:sticky lg:top-0 lg:h-screen lg:overflow-y-auto">
+          <div className="lg:w-[60%] bg-black flex flex-col lg:sticky lg:top-0 lg:h-screen lg:overflow-y-auto">
             {/* Main Image */}
-            <div className="relative w-full flex justify-center shadow-2xl shadow-indigo-500/10 rounded-lg overflow-hidden">
+            <div className="w-full">
               <img
                   src={art.imageUrls[currentImageIndex]}
                   alt={art.title}
-                  className="max-w-full max-h-[45vh] md:max-h-[60vh] lg:max-h-[70vh] object-contain transition-opacity duration-300"
+                  className="w-full h-auto transition-opacity duration-300"
               />
             </div>
 
-            {/* Thumbnail Grid - 3 per row */}
+            {/* Thumbnail Grid */}
             {hasMultipleImages && (
-              <div className="w-full mt-3 grid grid-cols-4 md:grid-cols-3 gap-2 max-w-md">
+              <div className="w-full p-2 grid grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-1.5 shrink-0 bg-[#050505]">
                 {art.imageUrls.map((url, index) => (
                   <button
                     key={index}
